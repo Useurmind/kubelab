@@ -1,0 +1,29 @@
+goNamespace: main
+pocoTypes:
+  - pocoName: Group
+    properties:
+      - name: id
+        typeMap:
+          go: int
+          ts: number
+      - name: name
+        type: string
+      - name: subgroupNames
+        typeMap:
+          go: "[]string"
+          ts: "string[]"
+      - name: projects
+        typeMap:
+          go: "[]Project"
+          ts: "IProject[]"
+
+  - pocoName: Project
+    properties:
+      - name: id
+        typeMap:
+          go: int
+          ts: number
+      - name: name
+        type: string
+      - name: slug
+        type: string
