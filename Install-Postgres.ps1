@@ -1,0 +1,1 @@
+helm install kubelab-postgres bitnami/postgresql
