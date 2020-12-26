@@ -5,7 +5,7 @@ metadata:
   labels:
     app: kubelab-projects
 spec:
-  replicas: 3
+  replicas: {{ .Values.projects.replicas }}
   selector:
     matchLabels:
       app: kubelab-projects
@@ -13,6 +13,8 @@ spec:
     metadata:
       labels:
         app: kubelab-projects
+      annotations:
+        timstamp: "{{ date "20060102150405" .Release.Time }}"
     spec:
       containers:
       - name: kubelab-projects

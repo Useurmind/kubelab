@@ -22,7 +22,7 @@ type GroupRepo interface {
 	Get(ctx context.Context, groupID int) (*models.Group, error)
 
 	// List retrieves number groups from the database starting with the given index.
-	List(ctx context.Context, startIndex int, count int) (*models.Group, error)
+	List(ctx context.Context, startIndex int, count int) ([]*models.Group, error)
 
 	// Delete the group with the given id.
 	Delete(ctx context.Context, groupID int) error

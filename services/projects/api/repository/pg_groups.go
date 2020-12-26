@@ -82,8 +82,30 @@ func (r *PGGroupRepo) Get(ctx context.Context, groupID int) (*models.Group, erro
 	return &group, nil
 }
 
-func (r *PGGroupRepo) List(ctx context.Context, startIndex int, count int) (*models.Group, error) {
-	return nil, fmt.Errorf("Not implemented")
+func (r *PGGroupRepo) List(ctx context.Context, startIndex int, count int) ([]*models.Group, error) {
+	pggroups := make([]pgGroup, 0)
+	err := r.db.SelectContext(ctx, &pggroups, "SELECT * FROM groups LIMIT $1 OFFSET $2", count, startIndex)
+	if err != nil {
+		return nil, err
+	}
+
+	groups := make([]*models.Group, len(pggroups))
+	for i, pggroup := range pggroups {
+		group := models.Group{}
+		err = pggroup.Data.Unmarshal(&group)
+		if err != nil {
+			log.Error().
+				Err(err).
+				Int("index", i).
+				Str("data", pggroup.Data.String()).
+				Msgf("Could not unmarshal group data of group from json")
+			return nil, err
+		}
+
+		groups[i] = &group
+	}
+
+	return groups, nil
 }
 
 func (r *PGGroupRepo) Delete(ctx context.Context, groupID int) error {
