@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubelab-projects-deployment
+  labels:
+    app: kubelab-projects
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: kubelab-projects
+  template:
+    metadata:
+      labels:
+        app: kubelab-projects
+    spec:
+      containers:
+      - name: kubelab-projects
+        image: kubelab-projects
+        ports:
+        - containerPort: 8080
+

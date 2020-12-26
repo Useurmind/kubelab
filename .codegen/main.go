@@ -28,12 +28,14 @@ type PocoSet struct {
 
 type PocoDefinition struct {
 	PocoName string `yaml:"pocoName"`
+	Description string `yaml:"description"`
 	Properties []PropertyDefinition `yaml:"properties"`
 }
 
 type PropertyDefinition struct {
 	Name string `yaml:"name"`
 	Type string `yaml:"type"`
+	Description string `yaml:"description"`
 	TypeMap map[string]string `yaml:"typeMap"`
 }
 

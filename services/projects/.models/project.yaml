@@ -1,29 +1,60 @@
-goNamespace: main
+goNamespace: models
 pocoTypes:
   - pocoName: Group
+    description: A group that contains projects or can be used as hierarchical element to structure the projects.
     properties:
       - name: id
+        description: The primary key of the group.
         typeMap:
-          go: int
+          go: int64
           ts: number
       - name: name
+        description: The name of the group.
         type: string
-      - name: subgroupNames
+      - name: subgroups
+        description: The groups under this group in the group hierarchy.
         typeMap:
-          go: "[]string"
-          ts: "string[]"
+          go: "[]Group"
+          ts: "IGroup[]"
       - name: projects
+        description: Fat references to the projects in this group.
         typeMap:
-          go: "[]Project"
-          ts: "IProject[]"
+          go: "[]ProjectRef"
+          ts: "IProjectRef[]"
+
+  - pocoName: ProjectRef
+    description: A pointer to a project.
+    properties:
+      - name: id
+        description: The primary key of the referenced project.
+        typeMap:
+          go: int64
+          ts: number
+      - name: slug
+        description: The slug of the project.
+        type: string
+      - name: name
+        description: The name of the project.
+        type: string
 
   - pocoName: Project
     properties:
       - name: id
+        description: The primary key of this project.
         typeMap:
-          go: int
+          go: int64
           ts: number
+      - name: groupId
+        description: The root group to which this project belongs.
+        typeMap:
+          go: int64
+          ts: number
+      - name: assignedGroupName
+        description: The name of the (sub)group to which this project belongs.
+        type: string
       - name: name
+        description: Pretty name for this project.
         type: string
       - name: slug
+        description: The short name of this project. Must only contain numbers, letters, dash and underline.
         type: string

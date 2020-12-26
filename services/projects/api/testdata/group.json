@@ -1,0 +1,12 @@
+{
+    "name": "group x",
+    "subgroups": [
+        {
+            "name": "subgroup 1"
+        },
+        {
+            "name": "subgroup 2"
+        }
+    ],
+    "projects": []
+}
