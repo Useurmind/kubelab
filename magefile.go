@@ -15,6 +15,11 @@ import (
 
 type CodeGen mg.Namespace
 type Projects mg.Namespace
+type KubelabDev mg.Namespace
+
+func (KubelabDev) HelmInstall() error {
+	return sh.Run("helm", "upgrade", "--install", "kubelab", "--namespace", "kubelab", "--values", "./helm_chart/values-dev.yaml", "./helm_chart/")
+}
 
 func (CodeGen) Build() error {
 	return sh.Run("go", "build", "-o", ".codegen/bin/codegen.exe", ".codegen/main.go")

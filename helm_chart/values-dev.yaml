@@ -1,3 +1,13 @@
 projects:
+  image:
+    tag: local-dev
+  db:
+    host: kubelab-postgres-postgresql
+    port: 5432
+    dbname: projects
+    user: postgres
+    secretKeyRef:
+      name: kubelab-postgres-postgresql
+      key: postgresql-password
   ingress:
     enabled: true

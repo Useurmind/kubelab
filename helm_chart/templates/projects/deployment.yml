@@ -16,7 +16,21 @@ spec:
     spec:
       containers:
       - name: kubelab-projects
-        image: kubelab-projects
+        image: "{{ .Values.projects.image.name }}:{{ .Values.projects.image.tag }}"
         ports:
         - containerPort: 8080
+        env:
+        - name: KUBELAB_DB_HOST
+          value: "{{ .Values.projects.db.host }} "
+        - name: KUBELAB_DB_PORT
+          value: "{{ .Values.projects.db.port }} "
+        - name: KUBELAB_DB_DBNAME
+          value: "{{ .Values.projects.db.dbname }} "
+        - name: KUBELAB_DB_USER
+          value: "{{ .Values.projects.db.user }} "
+        - name: KUBELAB_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.projects.db.secretKeyRef.name }}"
+              key: "{{ .Values.projects.db.secretKeyRef.key }}"
 
