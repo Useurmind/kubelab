@@ -1,0 +1,11 @@
+goNamespace: models
+pocoTypes:
+  - pocoName: UIConfig
+    description: Configuration for the ui. Will be served and configured from the backend.
+    properties:
+      - name: uiBaseUrl
+        description: The base url of the ui backend service
+        type: string
+      - name: projectsBaseUrl
+        description: The base url of the projects backend service
+        type: string

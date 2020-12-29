@@ -10,14 +10,16 @@ import (
 	"github.com/dn365/gin-zerolog"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+	"github.com/gin-contrib/cors"
 )
 
 func main() {
-	log.Info().Msg("Hello projects")
+	log.Info().Msg("Starting kubelab projects")
 
 	router := gin.New()
 
 	router.Use(ginzerolog.Logger("gin"))
+	router.Use(cors.Default())
 	router.Use(gin.Recovery())
 
 	dbConfig := config.GetDBConfigFromEnv()

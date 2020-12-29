@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "esnext",
+        "moduleResolution": "node",
+        "watch": false, 
+        "sourceMap": true,
+        "target": "es2017",
+        "importHelpers": true,
+        "jsx": "react",
+        "declaration": true,
+        "skipLibCheck": true
+    }
+}

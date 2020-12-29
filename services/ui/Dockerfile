@@ -8,17 +8,13 @@ RUN go get github.com/magefile/mage
 COPY go.mod go.sum ./
 RUN go mod download
 
-COPY magefile.go ./
+ADD . .
 RUN mage -compile magic
-
-ADD services/ services/
-RUN ls
-RUN ls services
-RUN ./magic Projects:Build
+RUN mage UI:Build
 
 FROM ubuntu as run
 WORKDIR /app
 
-COPY --from=build /app/services/projects/bin/ /app/
+COPY --from=build /app/services/ui/bin/ /app/
 
-CMD [ "/app/projects" ]
+CMD [ "/app/ui" ]

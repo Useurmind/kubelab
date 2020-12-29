@@ -4,4 +4,4 @@ templateName: poco
 
 pocoFolders:
   go: api/models
-  ts: ../ui/src/models
+  ts: src/models

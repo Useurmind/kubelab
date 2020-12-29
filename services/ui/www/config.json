@@ -1,0 +1,4 @@
+{
+    "uiBaseUrl": "http://localhost:8080",
+    "projectsBaseUrl": "http://localhost/kubelab/projects"
+}

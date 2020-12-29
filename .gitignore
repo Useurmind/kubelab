@@ -1,3 +1,5 @@
 ./codegen/bin
 *.exe
 .codegen/bin/codegen
+node_modules
+*.d.ts
