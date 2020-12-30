@@ -11,7 +11,7 @@ RUN go mod download
 COPY magefile.go ./
 RUN mage -compile magic
 
-ADD services/ services/
+ADD services/projects services/projects
 RUN ls
 RUN ls services
 RUN ./magic Projects:Build

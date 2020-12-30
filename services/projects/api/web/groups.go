@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"io/ioutil"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
@@ -61,9 +60,8 @@ func HandleGroups(basePath string, router *gin.Engine, repoFactory repository.Re
 			return
 		}
 
-		id, err := strconv.Atoi(c.Param("id"))
+		id, err := getIntParam(c, "id")
 		if err != nil {
-			AbortWithBadRequest(c, "Could not parse input parameter id", err)
 			return
 		}
 
@@ -84,22 +82,14 @@ func HandleGroups(basePath string, router *gin.Engine, repoFactory repository.Re
 			return
 		}
 
-		startIndex := 0
-		if c.Param("start") != "" {
-			startIndex, err = strconv.Atoi(c.Param("start"))
-			if err != nil {
-				AbortWithBadRequest(c, "Could not parse input parameter start", err)
-				return
-			}
-		} 
-		count := 50
-		if c.Param("count") != "" {
-			count, err = strconv.Atoi(c.Param("count"))
-			if err != nil {
-				AbortWithBadRequest(c, "Could not parse input parameter count", err)
-				return
-			}
-		} 
+		startIndex, err := getIntParamOrDefault(c, "start", 0)
+		if err != nil {
+			return
+		}
+		count, err := getIntParamOrDefault(c, "count", 50)
+		if err != nil {
+			return
+		}
 
 		groups, err := repo.List(c, startIndex, count)
 		if err != nil {
@@ -108,5 +98,28 @@ func HandleGroups(basePath string, router *gin.Engine, repoFactory repository.Re
 		}
 
 		c.JSON(200, groups)
+	})
+
+	// DELETE group
+	router.DELETE(basePath + "/:id", func(c *gin.Context) {
+		repo, err := repoFactory.GetGroupRepo(c)
+		if err != nil {
+			AbortWithInternalError(c, err)
+			return
+		}
+
+		
+		id, err := getIntParam(c, "id")
+		if err != nil {
+			return
+		}
+
+		err = repo.Delete(c, id)
+		if err != nil {
+			AbortWithInternalError(c, err)
+			return
+		}
+
+		c.Status(204)
 	})
 }

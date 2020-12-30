@@ -68,6 +68,8 @@ func (r *PGGroupRepo) Get(ctx context.Context, groupID int) (*models.Group, erro
 	}
 
 	group := models.Group{
+		Id: pggroup.ID,
+		Name: pggroup.Name,
 	}
 	err = pggroup.Data.Unmarshal(&group)
 	if err != nil {
@@ -91,7 +93,10 @@ func (r *PGGroupRepo) List(ctx context.Context, startIndex int, count int) ([]*m
 
 	groups := make([]*models.Group, len(pggroups))
 	for i, pggroup := range pggroups {
-		group := models.Group{}
+		group := models.Group{
+			Id: pggroup.ID,
+			Name: pggroup.Name,
+		}
 		err = pggroup.Data.Unmarshal(&group)
 		if err != nil {
 			log.Error().

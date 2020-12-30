@@ -3,7 +3,7 @@ import { reduceAction, useStore } from 'rfluxx';
 import { take, takeLast } from 'rxjs/operators';
 import { IConfigStore } from '../../config/config_store';
 import { IGroup } from '../../models/project';
-import { createGroup, listGroups } from '../../services/projects';
+import { createGroup, deleteGroup, listGroups } from '../../services/projects';
 
 export interface IGroupListStoreState {
     groups: IGroup[]
@@ -25,6 +25,14 @@ export const GroupListStore = (configStore: IConfigStore) => {
                     name: groupName,
                 }
                 createGroup(config, group).then(newGroup => setState({ ...state.value, groups: [...state.value.groups, newGroup] }))
+            })
+        },
+        deleteGroup: (groupId: number) => {
+            configStore.observeConfig().subscribe(config => {
+                deleteGroup(config, groupId).then(deleted => {
+                    const newGroups = state.value.groups.filter(x => x.id !== groupId)
+                    setState({ ...state.value, groups: newGroups })
+                })
             })
         }
     }

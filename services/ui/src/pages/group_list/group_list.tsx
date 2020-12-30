@@ -5,7 +5,7 @@ import { useStoreStateFromContainerContext } from 'rfluxx-react'
 import { Button } from '../../components/button'
 import { H3 } from '../../components/headings'
 import { TextBox } from '../../components/input';
-import { ModalButtonBar, ModalHeading, ModalText } from '../../components/modal';
+import { ModalButtonBar, ModalHeading, ModalText, OkCancelModal } from '../../components/modal';
 import { IGroupListStore, IGroupListStoreState } from './group_list_store'
 
 export const GroupList = () => {
@@ -27,19 +27,22 @@ export const GroupList = () => {
         <H3>Group List</H3>
         <Button onClick={() => setIsModalOpen(true)}>Create Group</Button>
         <ul>
-            {state.groups && state.groups.map(group =>
-                <li>
-                    {group.name}
-                </li>)}
+            {state.groups && state.groups.map(group => {
+                const groupId = group.id
+                return <li>
+                    {group.name}<Button onClick={() => store.deleteGroup(groupId)}>Delete</Button>
+                </li>
+            })}
         </ul>
-        <Modal isOpen={isModalOpen}>
-            <ModalHeading>Create Group</ModalHeading>
-            <ModalText>Enter the name of the group to create</ModalText>
-            <TextBox value={groupName} onChange={e => setGroupName(e.target.value)}></TextBox>
-            <ModalButtonBar>
-                <Button onClick={() => createGroup()}>Cancel</Button>
-            </ModalButtonBar>
-        </Modal>
+        <OkCancelModal isOpen={isModalOpen}
+            heading="Create Group"
+            text="Enter the name of the group to create"
+            cancelHandler={() => setIsModalOpen(false)}
+            cancelText="Cancel"
+            okHandler={() => createGroup()}
+            okText="Create">
+            <TextBox value={groupName} autoFocus onChange={e => setGroupName(e.target.value)}></TextBox>
+        </OkCancelModal>
     </div>
 }
 

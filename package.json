@@ -4,7 +4,7 @@
   "description": "The following tools need to be installed/available",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "ui": "webpack-dev-server -c services/ui/webpack.config.js --https"
   },
   "repository": {
     "type": "git",
