@@ -27,8 +27,7 @@ func HandleGroups(basePath string, router *gin.Engine, repoFactory repository.Re
 			return
 		}
 		group := models.Group{}
-		dec := json.NewDecoder(c.Request.Body)
-		err = dec.Decode(&group)
+		err = json.Unmarshal(jsonBody, &group)
 		if err != nil {
 			log.Error().Str("jsonbody", string(jsonBody)).Msg("Could not parse json body")
 			AbortWithBadRequest(c, "Could not parse body as group object.", err)

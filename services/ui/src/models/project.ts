@@ -3,35 +3,35 @@
 // A group that contains projects or can be used as hierarchical element to structure the projects.
 export interface IGroup {
 	// The primary key of the group.
-	id: number;
+	id?: number;
 	// The name of the group.
-	name: string;
+	name?: string;
 	// The groups under this group in the group hierarchy.
-	subgroups: IGroup[];
+	subgroups?: IGroup[];
 	// Fat references to the projects in this group.
-	projects: IProjectRef[];
+	projects?: IProjectRef[];
 }
 
 // A pointer to a project.
 export interface IProjectRef {
 	// The primary key of the referenced project.
-	id: number;
+	id?: number;
 	// The slug of the project.
-	slug: string;
+	slug?: string;
 	// The name of the project.
-	name: string;
+	name?: string;
 }
 
 // 
 export interface IProject {
 	// The primary key of this project.
-	id: number;
+	id?: number;
 	// The root group to which this project belongs.
-	groupId: number;
+	groupId?: number;
 	// The name of the (sub)group to which this project belongs.
-	assignedGroupName: string;
+	assignedGroupName?: string;
 	// Pretty name for this project.
-	name: string;
+	name?: string;
 	// The short name of this project. Must only contain numbers, letters, dash and underline.
-	slug: string;
+	slug?: string;
 }

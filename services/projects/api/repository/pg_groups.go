@@ -38,7 +38,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 
 	if (pggroup.ID == 0) {
 		// insert
-		res, err := r.db.NamedExec("INSERT INTO groups (id, data) VALUES (:id, :data)", pggroup)
+		res, err := r.db.NamedExec("INSERT INTO groups (name, data) VALUES (:name, :data)", pggroup)
 		if err != nil {
 			return nil, err
 		}
@@ -47,7 +47,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 		group.Id = id
 	} else {
 		// update
-		res, err := r.db.NamedExec("UPDATE groups SET data=:data WHERE id=:id", pggroup)
+		res, err := r.db.NamedExec("UPDATE groups SET name=:name, data=:data WHERE id=:id", pggroup)
 		if err != nil {
 			return nil, err
 		}

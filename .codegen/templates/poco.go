@@ -6,7 +6,7 @@ package {{ .Spec.GoNamespace }}
 type {{$pocoDef.PocoName}} struct {
 	{{- range $prop := $pocoDef.Properties}}
 	// {{$prop.Description}}
-	{{ title $prop.Name }} {{ $prop.GetType "go" }} `json:"{{ untitle $prop.Name }}"`
+	{{ title $prop.Name }} {{ $prop.GetType "go" }} `json:"{{ untitle $prop.Name }},omitempty"`
 	{{- end}}
 }
 
