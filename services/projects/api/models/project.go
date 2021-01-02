@@ -7,9 +7,9 @@ type Group struct {
 	// The name of the group.
 	Name string `json:"name,omitempty"`
 	// The groups under this group in the group hierarchy.
-	Subgroups []Group `json:"subgroups,omitempty"`
+	Subgroups []*Group `json:"subgroups,omitempty"`
 	// Fat references to the projects in this group.
-	Projects []ProjectRef `json:"projects,omitempty"`
+	Projects []*ProjectRef `json:"projects,omitempty"`
 }
 
 // A pointer to a project.

@@ -18,13 +18,8 @@ type pgGroup struct {
 	Data types.JSONText `db:"data"`
 }
 
-// PGGroupRepo is an implementation of the GroupRepo interface to store groups in a postgres database.
-type PGGroupRepo struct {
-	db *sqlx.DB
-}
-
-func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (*models.Group, error) {
-	pggroup := pgGroup{
+func newPGGroup(group *models.Group) (pggroup *pgGroup, err error) {
+	pggroup = &pgGroup{
 		ID: group.Id,
 		Name: group.Name,
 	}
@@ -36,7 +31,32 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 
 	pggroup.Data = types.JSONText(bytes)
 
-	if (pggroup.ID == 0) {
+	return pggroup, nil
+}
+
+// PGGroupRepo is an implementation of the GroupRepo interface to store groups in a postgres database.
+type PGGroupRepo struct {
+	db *sqlx.DB
+}
+
+func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (*models.Group, error) {
+	// give all new subgroups a unique id
+	newSubgroups := group.GatherNewSubgroups()
+	for _, newSubgroup := range newSubgroups {
+		nextID, err := getNextValFromSequence(ctx, r.db, "groups_subgroups")
+		if err != nil {
+			return nil, err
+		}
+
+		newSubgroup.Id = nextID
+	}
+
+	pggroup, err := newPGGroup(group)
+	if err != nil {
+		return nil, err
+	}
+
+	if group.IsNew() {
 		// insert
 		res, err := r.db.NamedExec("INSERT INTO groups (name, data) VALUES (:name, :data)", pggroup)
 		if err != nil {
@@ -47,7 +67,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 		group.Id = id
 	} else {
 		// update
-		res, err := r.db.NamedExec("UPDATE groups SET name=:name, data=:data WHERE id=:id", pggroup)
+		res, err := r.db.NamedExecContext(ctx, "UPDATE groups SET name=:name, data=:data WHERE id=:id", pggroup)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +80,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 	return group, nil
 }
 
-func (r *PGGroupRepo) Get(ctx context.Context, groupID int) (*models.Group, error) {
+func (r *PGGroupRepo) Get(ctx context.Context, groupID int64) (*models.Group, error) {
 	pggroup := pgGroup{}
 	err := r.db.GetContext(ctx, &pggroup, "SELECT * FROM groups WHERE id = $1 LIMIT 1", groupID)
 	if err != nil {
@@ -75,7 +95,7 @@ func (r *PGGroupRepo) Get(ctx context.Context, groupID int) (*models.Group, erro
 	if err != nil {
 		log.Error().
 			Err(err).
-			Int("groupID", groupID).
+			Int64("groupID", groupID).
 			Str("data", pggroup.Data.String()).
 			Msgf("Could not unmarshal group data of group from json")
 		return nil, err
@@ -84,7 +104,7 @@ func (r *PGGroupRepo) Get(ctx context.Context, groupID int) (*models.Group, erro
 	return &group, nil
 }
 
-func (r *PGGroupRepo) List(ctx context.Context, startIndex int, count int) ([]*models.Group, error) {
+func (r *PGGroupRepo) List(ctx context.Context, startIndex int64, count int64) ([]*models.Group, error) {
 	pggroups := make([]pgGroup, 0)
 	err := r.db.SelectContext(ctx, &pggroups, "SELECT * FROM groups LIMIT $1 OFFSET $2", count, startIndex)
 	if err != nil {
@@ -113,7 +133,7 @@ func (r *PGGroupRepo) List(ctx context.Context, startIndex int, count int) ([]*m
 	return groups, nil
 }
 
-func (r *PGGroupRepo) Delete(ctx context.Context, groupID int) error {
+func (r *PGGroupRepo) Delete(ctx context.Context, groupID int64) error {
 	res, err := r.db.ExecContext(ctx, "DELETE FROM groups WHERE id = $1", groupID)
 	if err != nil {
 		return err
@@ -124,4 +144,8 @@ func (r *PGGroupRepo) Delete(ctx context.Context, groupID int) error {
 	}
 
 	return nil
+}
+
+func (r *PGGroupRepo) Close() error {
+	return r.db.Close()
 }

@@ -19,11 +19,14 @@ type GroupRepo interface {
 	CreateOrUpdate(ctx context.Context, group *models.Group) (*models.Group, error)
 
 	// Get retrieves the group with the given id from the database.
-	Get(ctx context.Context, groupID int) (*models.Group, error)
+	Get(ctx context.Context, groupID int64) (*models.Group, error)
 
 	// List retrieves number groups from the database starting with the given index.
-	List(ctx context.Context, startIndex int, count int) ([]*models.Group, error)
+	List(ctx context.Context, startIndex int64, count int64) ([]*models.Group, error)
 
 	// Delete the group with the given id.
-	Delete(ctx context.Context, groupID int) error
+	Delete(ctx context.Context, groupID int64) error
+
+	// Close the connection to the database.
+	Close() error
 }

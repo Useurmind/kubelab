@@ -1,0 +1,1 @@
+DELETE SEQUENCE groups_subgroups;

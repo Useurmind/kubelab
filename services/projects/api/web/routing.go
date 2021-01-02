@@ -8,14 +8,14 @@ import (
 )
 
 
-func getIntParam(c *gin.Context, name string) (int, error) {
+func getIntParam(c *gin.Context, name string) (int64, error) {
 	if c.Param(name) == "" {
 		errMsg := "Parameter " + name + " expected but not set"
 		AbortWithBadRequest(c, errMsg, nil)
 		return 0, fmt.Errorf(errMsg)
 	}
 
-	value, err := strconv.Atoi(c.Param(name))
+	value, err := strconv.ParseInt(c.Param(name), 10, 64)
 	if err != nil {
 		AbortWithBadRequest(c, "Could not parse input parameter "+name, err)
 		return 0, err
@@ -24,7 +24,7 @@ func getIntParam(c *gin.Context, name string) (int, error) {
 	return value, nil
 }
 
-func getIntParamOrDefault(c *gin.Context, name string, defaultValue int) (int, error) {
+func getIntParamOrDefault(c *gin.Context, name string, defaultValue int64) (int64, error) {
 	var err error = nil
 	value := defaultValue
 	if c.Param(name) != "" {

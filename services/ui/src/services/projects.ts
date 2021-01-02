@@ -11,6 +11,11 @@ export function createGroup(config: IUIConfig, group: IGroup): Promise<IGroup> {
         .then(j => j as IGroup)
 }
 
+export function updateGroup(config: IUIConfig, group: IGroup): Promise<IGroup> {
+    return fetchFromProjects(config, "PUT", `/groups/${group.id}`, group).then(r => r.json())
+        .then(j => j as IGroup)
+}
+
 export function deleteGroup(config: IUIConfig, groupId: number): Promise<boolean> {
     return fetchFromProjects(config, "DELETE", `/groups/${groupId}`, null).then(r => r.status === 204)
 }

@@ -14,12 +14,12 @@ pocoTypes:
       - name: subgroups
         description: The groups under this group in the group hierarchy.
         typeMap:
-          go: "[]Group"
+          go: "[]*Group"
           ts: "IGroup[]"
       - name: projects
         description: Fat references to the projects in this group.
         typeMap:
-          go: "[]ProjectRef"
+          go: "[]*ProjectRef"
           ts: "IProjectRef[]"
 
   - pocoName: ProjectRef
