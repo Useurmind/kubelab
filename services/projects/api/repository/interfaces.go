@@ -6,10 +6,25 @@ import (
 	"github.com/useurmind/kubelab/services/projects/api/models"
 )
 
-// RepoFactory is used to get repositories.
-type RepoFactory interface {
+// DBSystem is represents the chosen DB technology to use.
+// There is only one DBSystem per running service instance.
+type DBSystem interface {
+	// NewContext returns a new DBContext for the current http request.
+	NewContext() DBContext
+}
+
+// DBContext is the root entity for accessing the database inside one http request.
+// It can be used to retrieve the different repos.
+// One new DBContext is created per request.
+type DBContext interface {
+	// Migrate the database to the current schema version.
+	Migrate() error
+
 	// GetGroupRepo returns a group repository.
 	GetGroupRepo(ctx context.Context) (GroupRepo, error)
+
+	// Close all connections to the database.
+	Close() error
 }
 
 // GroupRepo is an interface for a group repository.
@@ -26,7 +41,4 @@ type GroupRepo interface {
 
 	// Delete the group with the given id.
 	Delete(ctx context.Context, groupID int64) error
-
-	// Close the connection to the database.
-	Close() error
 }

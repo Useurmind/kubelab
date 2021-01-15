@@ -1,1 +1,0 @@
-CREATE SEQUENCE groups_subgroups START 1;

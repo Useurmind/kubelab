@@ -1,2 +1,1 @@
-DELETE TABLE groups;
 DELETE TABLE projects;

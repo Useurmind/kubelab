@@ -1,0 +1,3 @@
+DELETE TABLE groups;
+
+DELETE SEQUENCE id_groups;

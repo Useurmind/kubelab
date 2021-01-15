@@ -14,5 +14,6 @@ require (
 	github.com/lib/pq v1.9.0
 	github.com/magefile/mage v1.10.0
 	github.com/rs/zerolog v1.20.0
+	github.com/stretchr/testify v1.5.1
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

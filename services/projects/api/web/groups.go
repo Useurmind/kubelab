@@ -11,30 +11,29 @@ import (
 	"github.com/useurmind/kubelab/services/projects/api/repository"
 )
 
-func HandleGroups(basePath string, router *gin.Engine, repoFactory repository.RepoFactory) {
+func HandleGroups(basePath string, router *gin.Engine, dbSystem repository.DBSystem) {
 	// Create a group
-	router.POST(basePath, func(c *gin.Context) { createGroup(c, repoFactory) })
+	router.POST(basePath, func(c *gin.Context) { UseDBContext(c, dbSystem, createGroup) })
 
 	// Update a group
-	router.PUT(basePath+"/:id", func(c *gin.Context) { updateGroup(c, repoFactory) })
+	router.PUT(basePath+"/:id", func(c *gin.Context) { UseDBContext(c, dbSystem, updateGroup) })
 
 	// GET group by id
-	router.GET(basePath+"/:id", func(c *gin.Context) { getGroupByID(c, repoFactory) })
+	router.GET(basePath+"/:id", func(c *gin.Context) { UseDBContext(c, dbSystem, getGroupByID) })
 
 	// List groups
-	router.GET(basePath, func(c *gin.Context) { listGroups(c, repoFactory) })
+	router.GET(basePath, func(c *gin.Context) { UseDBContext(c, dbSystem, listGroups) })
 
 	// DELETE group
-	router.DELETE(basePath+"/:id", func(c *gin.Context) { deleteGroup(c, repoFactory) })
+	router.DELETE(basePath+"/:id", func(c *gin.Context) { UseDBContext(c, dbSystem, deleteGroup) })
 }
 
-func createGroup(c *gin.Context, repoFactory repository.RepoFactory) {
+func createGroup(c *gin.Context, repoFactory repository.DBContext) {
 	repo, err := repoFactory.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
 	}
-	defer repo.Close()
 
 	jsonBody, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
@@ -69,13 +68,12 @@ func createGroup(c *gin.Context, repoFactory repository.RepoFactory) {
 	c.JSON(200, groupResult)
 }
 
-func updateGroup(c *gin.Context, repoFactory repository.RepoFactory) {
+func updateGroup(c *gin.Context, repoFactory repository.DBContext) {
 	repo, err := repoFactory.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
 	}
-	defer repo.Close()
 
 	id, err := getIntParam(c, "id")
 	if err != nil {
@@ -98,7 +96,7 @@ func updateGroup(c *gin.Context, repoFactory repository.RepoFactory) {
 	}
 
 	if group.IsNew() {
-		AbortWithBadRequest(c, fmt.Sprintf("Group id is zero or not set. This indicates a new group. Use POST /groups instead.", group.Id, id), nil)
+		AbortWithBadRequest(c, fmt.Sprintf("Group id (%d) is zero or not set (path id %d). This indicates a new group. Use POST /groups instead.", group.Id, id), nil)
 		return
 	}
 
@@ -116,13 +114,12 @@ func updateGroup(c *gin.Context, repoFactory repository.RepoFactory) {
 	c.JSON(200, groupResult)
 }
 
-func getGroupByID(c *gin.Context, repoFactory repository.RepoFactory) {
+func getGroupByID(c *gin.Context, repoFactory repository.DBContext) {
 	repo, err := repoFactory.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
 	}
-	defer repo.Close()
 
 	id, err := getIntParam(c, "id")
 	if err != nil {
@@ -138,14 +135,13 @@ func getGroupByID(c *gin.Context, repoFactory repository.RepoFactory) {
 	c.JSON(200, group)
 }
 
-func listGroups(c *gin.Context, repoFactory repository.RepoFactory) {
+func listGroups(c *gin.Context, repoFactory repository.DBContext) {
 	repo, err := repoFactory.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
 	}
-	defer repo.Close()
-
+	
 	startIndex, err := getIntParamOrDefault(c, "start", 0)
 	if err != nil {
 		return
@@ -164,13 +160,12 @@ func listGroups(c *gin.Context, repoFactory repository.RepoFactory) {
 	c.JSON(200, groups)
 }
 
-func deleteGroup(c *gin.Context, repoFactory repository.RepoFactory) {
+func deleteGroup(c *gin.Context, repoFactory repository.DBContext) {
 	repo, err := repoFactory.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
 	}
-	defer repo.Close()
 
 	id, err := getIntParam(c, "id")
 	if err != nil {

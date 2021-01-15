@@ -6,6 +6,8 @@ export interface IGroup {
 	id?: number;
 	// The name of the group.
 	name?: string;
+	// The short name of the group. Must only contain numbers, letters, dash and underline.
+	slug?: string;
 	// The groups under this group in the group hierarchy.
 	subgroups?: IGroup[];
 	// Fat references to the projects in this group.
@@ -28,8 +30,8 @@ export interface IProject {
 	id?: number;
 	// The root group to which this project belongs.
 	groupId?: number;
-	// The name of the (sub)group to which this project belongs.
-	assignedGroupName?: string;
+	// The id of the (sub)group to which this project belongs.
+	assignedGroupId?: number;
 	// Pretty name for this project.
 	name?: string;
 	// The short name of this project. Must only contain numbers, letters, dash and underline.

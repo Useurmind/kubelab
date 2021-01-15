@@ -11,6 +11,9 @@ pocoTypes:
       - name: name
         description: The name of the group.
         type: string
+      - name: slug
+        description: The short name of the group. Must only contain numbers, letters, dash and underline.
+        type: string
       - name: subgroups
         description: The groups under this group in the group hierarchy.
         typeMap:
@@ -49,9 +52,11 @@ pocoTypes:
         typeMap:
           go: int64
           ts: number
-      - name: assignedGroupName
-        description: The name of the (sub)group to which this project belongs.
-        type: string
+      - name: assignedGroupId
+        description: The id of the (sub)group to which this project belongs.        
+        typeMap:
+          go: int64
+          ts: number
       - name: name
         description: Pretty name for this project.
         type: string

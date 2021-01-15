@@ -12,6 +12,8 @@ import (
 	"github.com/jmoiron/sqlx/types"
 )
 
+const groupIDSequence = "id_groups"
+
 type pgGroup struct {
 	ID int64 `db:"id"`
 	Name string `db:"name"`
@@ -43,11 +45,10 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 	// give all new subgroups a unique id
 	newSubgroups := group.GatherNewSubgroups()
 	for _, newSubgroup := range newSubgroups {
-		nextID, err := getNextValFromSequence(ctx, r.db, "groups_subgroups")
+		nextID, err := getNextValFromSequence(ctx, r.db, "groupIDSequence")
 		if err != nil {
 			return nil, err
 		}
-
 		newSubgroup.Id = nextID
 	}
 
@@ -144,8 +145,4 @@ func (r *PGGroupRepo) Delete(ctx context.Context, groupID int64) error {
 	}
 
 	return nil
-}
-
-func (r *PGGroupRepo) Close() error {
-	return r.db.Close()
 }

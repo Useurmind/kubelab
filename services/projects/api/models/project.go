@@ -6,6 +6,8 @@ type Group struct {
 	Id int64 `json:"id,omitempty"`
 	// The name of the group.
 	Name string `json:"name,omitempty"`
+	// The short name of the group. Must only contain numbers, letters, dash and underline.
+	Slug string `json:"slug,omitempty"`
 	// The groups under this group in the group hierarchy.
 	Subgroups []*Group `json:"subgroups,omitempty"`
 	// Fat references to the projects in this group.
@@ -28,8 +30,8 @@ type Project struct {
 	Id int64 `json:"id,omitempty"`
 	// The root group to which this project belongs.
 	GroupId int64 `json:"groupId,omitempty"`
-	// The name of the (sub)group to which this project belongs.
-	AssignedGroupName string `json:"assignedGroupName,omitempty"`
+	// The id of the (sub)group to which this project belongs.
+	AssignedGroupId int64 `json:"assignedGroupId,omitempty"`
 	// Pretty name for this project.
 	Name string `json:"name,omitempty"`
 	// The short name of this project. Must only contain numbers, letters, dash and underline.
