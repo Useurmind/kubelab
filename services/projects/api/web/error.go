@@ -18,6 +18,13 @@ func NewApiError(msg string, params ...interface{}) ApiError {
 	}
 }
 
+func AbortWithNotFoundError(c *gin.Context, err error) {
+	if err != nil {
+		c.Error(err)
+	}
+	c.AbortWithStatusJSON(http.StatusNotFound, NewApiError("Not found"))
+}
+
 func AbortWithInternalError(c *gin.Context, err error) {
 	if err != nil {
 		c.Error(err)

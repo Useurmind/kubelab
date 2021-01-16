@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 
@@ -84,6 +85,9 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 func (r *PGGroupRepo) Get(ctx context.Context, groupID int64) (*models.Group, error) {
 	pggroup := pgGroup{}
 	err := r.db.GetContext(ctx, &pggroup, "SELECT * FROM groups WHERE id = $1 LIMIT 1", groupID)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
 	if err != nil {
 		return nil, err
 	}

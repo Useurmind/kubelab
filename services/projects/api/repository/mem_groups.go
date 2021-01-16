@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/useurmind/kubelab/services/projects/api/models"
 )
@@ -50,7 +49,7 @@ func (r *MemGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) 
 func (r *MemGroupRepo) Get(ctx context.Context, groupID int64) (*models.Group, error) {
 	group, ok := r.groups[groupID]
 	if !ok {
-		return nil, fmt.Errorf("Could not find group in memory store")
+		return nil, nil
 	}
 
 	return group, nil
