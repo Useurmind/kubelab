@@ -1,8 +1,87 @@
 package models
 
+import "fmt"
+
 // IsNew checks whether the group is new by testing if id is not set.
 func (g *Group) IsNew() bool {
 	return g.Id == 0
+}
+
+// InsertProjectRef tries to insert a reference to the given project
+// on the matching group/subgroup. If no matching group/subgroup is found
+// an error is returned.
+func (g *Group) InsertProjectRef(project *Project) error {
+	projectRef := &ProjectRef{
+		Id: project.Id,
+		Slug: project.Slug,
+		Name: project.Name,
+	}
+	if g.Id == project.AssignedGroupId {
+		g.Projects = append(g.Projects, projectRef)
+		return nil
+	}
+
+	subgroups := g.GatherSubgroups()
+
+	for _, subgroup := range subgroups {
+		if subgroup.Id == project.AssignedGroupId {
+			subgroup.Projects = append(subgroup.Projects, projectRef)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("Could not find subgroup with matching ID %d in group %s", project.AssignedGroupId, g.Name)
+}
+
+// UpdateProjectRef tries to update a reference to the given project.
+// If no matching project is found an error is returned.
+func (g *Group) UpdateProjectRef(project *Project) error {
+	projects := g.GatherProjects()
+
+	for _, projRef := range projects {
+		if project.Id == projRef.Id {
+			projRef.Name = project.Name
+			projRef.Slug = project.Slug
+			return nil
+		}
+	}
+
+	return fmt.Errorf("Could not find project ref for project %s (%d) in group %s (%d)", project.Name, project.Id, g.Name, g.Id)
+}
+
+// DeleteProjectRef tries to delete a reference to the given project.
+// If no matching project is found an error is returned.
+func (g *Group) DeleteProjectRef(project *Project) error {
+	assGroup := g.GetGroupByID(project.AssignedGroupId)
+	if assGroup == nil {
+		return fmt.Errorf("Could not find assigned group for project %s (%d) in group %s (%d)", project.Name, project.Id, g.Name, g.Id)
+	}
+
+	for i, projRef := range assGroup.Projects {
+		if projRef.Id == project.Id {
+			assGroup.Projects[i] = assGroup.Projects[len(assGroup.Projects) - 1]
+			assGroup.Projects = assGroup.Projects[:len(assGroup.Projects) - 1]
+			return nil
+		}
+	}
+
+	return fmt.Errorf("Could not delete ref for project %s (%d) in group %s (%d)", project.Name, project.Id, g.Name, g.Id)
+}
+
+// GetGroupByID returns the group in the group tree with the matching id or nil if not found.
+func (g *Group) GetGroupByID(groupID int64) *Group {
+	if groupID == g.Id {
+		return g
+	}
+
+	subgroups := g.GatherSubgroups()
+	for _, subgroup := range subgroups {
+		if subgroup.Id == groupID {
+			return subgroup
+		}
+	}
+
+	return nil
 }
 
 // HasAnyProjects checks if the group or any subgroups has any projects in it.

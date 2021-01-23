@@ -39,14 +39,14 @@ func newPGGroup(group *models.Group) (pggroup *pgGroup, err error) {
 
 // PGGroupRepo is an implementation of the GroupRepo interface to store groups in a postgres database.
 type PGGroupRepo struct {
-	db *sqlx.DB
+	tx *sqlx.Tx
 }
 
 func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (*models.Group, error) {
 	// give all new subgroups a unique id
 	newSubgroups := group.GatherNewSubgroups()
 	for _, newSubgroup := range newSubgroups {
-		nextID, err := getNextValFromSequence(ctx, r.db, "groupIDSequence")
+		nextID, err := getNextValFromSequence(ctx, r.tx, "groupIDSequence")
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +60,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 
 	if group.IsNew() {
 		// insert
-		res, err := r.db.NamedExec("INSERT INTO groups (name, data) VALUES (:name, :data)", pggroup)
+		res, err := r.tx.NamedExec("INSERT INTO groups (name, data) VALUES (:name, :data)", pggroup)
 		if err != nil {
 			return nil, err
 		}
@@ -69,7 +69,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 		group.Id = id
 	} else {
 		// update
-		res, err := r.db.NamedExecContext(ctx, "UPDATE groups SET name=:name, data=:data WHERE id=:id", pggroup)
+		res, err := r.tx.NamedExecContext(ctx, "UPDATE groups SET name=:name, data=:data WHERE id=:id", pggroup)
 		if err != nil {
 			return nil, err
 		}
@@ -84,7 +84,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 
 func (r *PGGroupRepo) Get(ctx context.Context, groupID int64) (*models.Group, error) {
 	pggroup := pgGroup{}
-	err := r.db.GetContext(ctx, &pggroup, "SELECT * FROM groups WHERE id = $1 LIMIT 1", groupID)
+	err := r.tx.GetContext(ctx, &pggroup, "SELECT * FROM groups WHERE id = $1 LIMIT 1", groupID)
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}
@@ -111,7 +111,7 @@ func (r *PGGroupRepo) Get(ctx context.Context, groupID int64) (*models.Group, er
 
 func (r *PGGroupRepo) List(ctx context.Context, startIndex int64, count int64) ([]*models.Group, error) {
 	pggroups := make([]pgGroup, 0)
-	err := r.db.SelectContext(ctx, &pggroups, "SELECT * FROM groups LIMIT $1 OFFSET $2", count, startIndex)
+	err := r.tx.SelectContext(ctx, &pggroups, "SELECT * FROM groups LIMIT $1 OFFSET $2", count, startIndex)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (r *PGGroupRepo) List(ctx context.Context, startIndex int64, count int64) (
 }
 
 func (r *PGGroupRepo) Delete(ctx context.Context, groupID int64) error {
-	res, err := r.db.ExecContext(ctx, "DELETE FROM groups WHERE id = $1", groupID)
+	res, err := r.tx.ExecContext(ctx, "DELETE FROM groups WHERE id = $1", groupID)
 	if err != nil {
 		return err
 	}

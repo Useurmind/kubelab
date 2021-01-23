@@ -47,12 +47,7 @@ func runWith(dbSystem repository.DBSystem, stop chan bool, local bool) chan erro
 	router.Use(gin.Recovery())
 
 	web.HandleGroups("groups", router, dbSystem)
-
-	// router.POST("groups", func(c *gin.Context) {
-	// 	c.JSON(200, gin.H{
-	// 		"message": "pong",
-	// 	})
-	// })
+	web.HandleProjects("projects", router, dbSystem)
 
 	stopped := runGinServer(stop, router, local)
 	return stopped

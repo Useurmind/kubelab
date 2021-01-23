@@ -37,6 +37,7 @@ func (s *PGDBSystem) NewContext() DBContext {
 type PGDBContext struct {
 	connectionString string
 	db *sqlx.DB 
+	tx *sqlx.Tx
 }
 
 // newConnection returns a new db connection that must be closed by the caller.
@@ -45,9 +46,9 @@ func (c *PGDBContext) newConnection(ctx context.Context) (*sqlx.DB, error) {
 }
 
 // getSharedConnection returns the shared db connection that is closed when the context is closed when the http request ends.
-func (f *PGDBContext) getSharedConnection(ctx context.Context) (*sqlx.DB, error) {
+func (f *PGDBContext) getSharedConnection(ctx context.Context) (*sqlx.Tx, error) {
 	if f.db != nil {
-		return f.db, nil
+		return f.tx, nil
 	}
 
 	db, err := f.newConnection(ctx)
@@ -56,8 +57,9 @@ func (f *PGDBContext) getSharedConnection(ctx context.Context) (*sqlx.DB, error)
 	}
 
 	f.db = db
+	f.tx, err = db.BeginTxx(ctx, nil)
 
-	return f.db, err
+	return f.tx, err
 }
 
 func (f *PGDBContext) Migrate() error {
@@ -91,13 +93,31 @@ func (f *PGDBContext) Migrate() error {
 }
 
 func (f *PGDBContext) GetGroupRepo(ctx context.Context) (GroupRepo, error) {
-	db, err := f.getSharedConnection(ctx)
+	tx, err := f.getSharedConnection(ctx)
 	if err != nil {
 		return nil, err
 	}
 	return &PGGroupRepo{
-		db: db,
+		tx: tx,
 	}, nil
+}
+
+func (f *PGDBContext) GetProjectRepo(ctx context.Context) (ProjectRepo, error) {
+	tx, err := f.getSharedConnection(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &PGProjectRepo{
+		tx: tx,
+	}, nil
+}
+
+func (r *PGDBContext) Commit() error {
+	return r.tx.Commit()
+}
+
+func (r *PGDBContext) Rollback() error {
+	return r.tx.Rollback()
 }
 
 func (r *PGDBContext) Close() error {

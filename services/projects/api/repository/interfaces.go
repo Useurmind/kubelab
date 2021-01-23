@@ -20,8 +20,21 @@ type DBContext interface {
 	// Migrate the database to the current schema version.
 	Migrate() error
 
+	// CreateTransaction returns a transaction that can be used to make multiple repo calls
+	// atomic.
+	CreateTransaction(ctx context.Context) (DBTransaction, error)
+
 	// GetGroupRepo returns a group repository.
 	GetGroupRepo(ctx context.Context) (GroupRepo, error)
+
+	// GetProjectRepo returns a project repository.
+	GetProjectRepo(ctx context.Context) (ProjectRepo, error)
+
+	// Commit all changes on the shared connection.
+	Commit() error
+
+	// Rollback all changes on the shared connection.
+	Rollback() error
 
 	// Close all connections to the database.
 	Close() error
@@ -41,4 +54,17 @@ type GroupRepo interface {
 
 	// Delete the group with the given id.
 	Delete(ctx context.Context, groupID int64) error
+}
+
+// ProjectRepo is an interface for a project repository.
+type ProjectRepo interface {
+	// CreateOrUpdate creates or updates a project depending on whether the primary key is already set.
+	// It returns the project as saved in the database.
+	CreateOrUpdate(ctx context.Context, project *models.Project) (*models.Project, error)
+
+	// Get retrieves the project with the given id from the database.
+	Get(ctx context.Context, projectID int64) (*models.Project, error)
+
+	// Delete the project with the given id.
+	Delete(ctx context.Context, projectID int64) error
 }

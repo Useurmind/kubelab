@@ -63,3 +63,34 @@ func TestGroupGatherSubgroupsWorks(t *testing.T) {
 		t.Fatalf("The number of gathered projects should be %d but was %d", expectedSubgroups, len(subgroups))
 	}
 }
+
+func TestInsertProjectRef(t *testing.T) {
+	group := Group{
+		Subgroups: []*Group{
+			{
+				Subgroups: []*Group{
+					{Id: 2},
+				},
+			},
+			{
+				Subgroups: []*Group{
+					{
+						Subgroups: []*Group{
+							{Id: 3},
+							{Id: 4},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	err := group.InsertProjectRef(&Project{Id: 1, AssignedGroupId: 3})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if group.Subgroups[1].Subgroups[0].Subgroups[0].Projects[0].Id != 1 {
+		t.Error("Project was not correctly assigned")
+	}
+}

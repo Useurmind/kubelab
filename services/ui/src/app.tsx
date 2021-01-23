@@ -9,10 +9,10 @@ export const App = () => {
         <BrowserRouter>
             <Header></Header>
             <Switch>
-                <Route path="/groups" >
+                <Route path="/ui/groups" >
                     <GroupList></GroupList>
                 </Route>
-                <Route path="/" >
+                <Route path="/ui" >
                     <Home />
                 </Route>
             </Switch>

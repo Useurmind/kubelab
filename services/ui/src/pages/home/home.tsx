@@ -6,7 +6,7 @@ export const Home = () => {
     return <div>
         <H3>Welcome to kubelab</H3>
 
-        <Link to="/groups">Groups</Link>
+        <Link to="/ui/groups">Groups</Link>
     </div>
 }
 

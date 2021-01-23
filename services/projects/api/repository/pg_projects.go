@@ -57,7 +57,7 @@ func (pgproject *pgProject) createModel() (*models.Project, error) {
 
 // PGProjectRepo is an implementation of the ProjectRepo interface to store projects in a postgres database.
 type PGProjectRepo struct {
-	db *sqlx.DB
+	tx *sqlx.Tx
 }
 
 func (r *PGProjectRepo) CreateOrUpdate(ctx context.Context, project *models.Project) (*models.Project, error) {
@@ -68,7 +68,7 @@ func (r *PGProjectRepo) CreateOrUpdate(ctx context.Context, project *models.Proj
 
 	if project.IsNew() {
 		// insert
-		res, err := r.db.NamedExecContext(ctx, "INSERT INTO projects (name, group_id, slug, data) VALUES (:name, :groupid, :slug, :data)", pgproject)
+		res, err := r.tx.NamedExecContext(ctx, "INSERT INTO projects (name, group_id, slug, data) VALUES (:name, :groupid, :slug, :data)", pgproject)
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +77,7 @@ func (r *PGProjectRepo) CreateOrUpdate(ctx context.Context, project *models.Proj
 		project.Id = id
 	} else {
 		// update
-		res, err := r.db.NamedExecContext(ctx, "UPDATE projects SET name=:name, group_id=:groupid slug=:slug, data=:data WHERE id=:id", pgproject)
+		res, err := r.tx.NamedExecContext(ctx, "UPDATE projects SET name=:name, group_id=:groupid slug=:slug, data=:data WHERE id=:id", pgproject)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +92,7 @@ func (r *PGProjectRepo) CreateOrUpdate(ctx context.Context, project *models.Proj
 
 func (r *PGProjectRepo) Get(ctx context.Context, projectID int64) (*models.Project, error) {
 	pgproject := pgProject{}
-	err := r.db.GetContext(ctx, &pgproject, "SELECT * FROM projects WHERE id = $1 LIMIT 1", projectID)
+	err := r.tx.GetContext(ctx, &pgproject, "SELECT * FROM projects WHERE id = $1 LIMIT 1", projectID)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (r *PGProjectRepo) Get(ctx context.Context, projectID int64) (*models.Proje
 
 func (r *PGProjectRepo) GetBySlugs(ctx context.Context, groupSlug string, projectSlug string) (*models.Project, error) {
 	pgproject := pgProject{}
-	err := r.db.GetContext(ctx, &pgproject, "SELECT p.* FROM projects p INNER JOIN groups g ON g.slug = $2 AND g.id = p.group_id WHERE p.slug = $1 LIMIT 1",
+	err := r.tx.GetContext(ctx, &pgproject, "SELECT p.* FROM projects p INNER JOIN groups g ON g.slug = $2 AND g.id = p.group_id WHERE p.slug = $1 LIMIT 1",
 		projectSlug, groupSlug)
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func (r *PGProjectRepo) GetBySlugs(ctx context.Context, groupSlug string, projec
 
 
 func (r *PGProjectRepo) Delete(ctx context.Context, projectID int64) error {
-	res, err := r.db.ExecContext(ctx, "DELETE FROM projects WHERE id = $1", projectID)
+	res, err := r.tx.ExecContext(ctx, "DELETE FROM projects WHERE id = $1", projectID)
 	if err != nil {
 		return err
 	}

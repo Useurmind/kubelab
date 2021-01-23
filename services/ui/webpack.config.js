@@ -45,17 +45,19 @@ module.exports = {
         // }),
         new HtmlWebpackPlugin({
             title: 'Kubelab',
-            template: "src/index.html"
-
+            template: "src/index.html",
+            inject: false
         }),
         new webpack.HotModuleReplacementPlugin()
     ],
     devServer: {
-        contentBase: path.resolve(__dirname, distFolder),
+        // contentBase: path.resolve(__dirname, distFolder),
         hot: true,
-        // historyApiFallback: {
-        //     index: "evictedPages/index.html"
-        // }
+        serveIndex: true,
+        historyApiFallback: {
+          index: '/ui'
+        },
+        publicPath: "/ui"
     },
     devtool: 'inline-source-map',
     mode: "development",

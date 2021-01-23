@@ -28,8 +28,8 @@ func HandleGroups(basePath string, router *gin.Engine, dbSystem repository.DBSys
 	router.DELETE(basePath+"/:id", func(c *gin.Context) { UseDBContext(c, dbSystem, deleteGroup) })
 }
 
-func createGroup(c *gin.Context, repoFactory repository.DBContext) {
-	repo, err := repoFactory.GetGroupRepo(c)
+func createGroup(c *gin.Context, dbContext repository.DBContext) {
+	repo, err := dbContext.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
@@ -59,17 +59,20 @@ func createGroup(c *gin.Context, repoFactory repository.DBContext) {
 		return
 	}
 
-	groupResult, err := repo.CreateOrUpdate(c, &group)
-	if err != nil {
-		AbortWithInternalError(c, err)
-		return
-	}
+	CommitOnSuccess(c, dbContext, func() bool {
+		groupResult, err := repo.CreateOrUpdate(c, &group)
+		if err != nil {
+			AbortWithInternalError(c, err)
+			return false
+		}
 
-	c.JSON(200, groupResult)
+		c.JSON(200, groupResult)
+		return true
+	})
 }
 
-func updateGroup(c *gin.Context, repoFactory repository.DBContext) {
-	repo, err := repoFactory.GetGroupRepo(c)
+func updateGroup(c *gin.Context, dbContext repository.DBContext) {
+	repo, err := dbContext.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
@@ -105,17 +108,20 @@ func updateGroup(c *gin.Context, repoFactory repository.DBContext) {
 		return
 	}
 
-	groupResult, err := repo.CreateOrUpdate(c, &group)
-	if err != nil {
-		AbortWithInternalError(c, err)
-		return
-	}
+	CommitOnSuccess(c, dbContext, func() bool {
+		groupResult, err := repo.CreateOrUpdate(c, &group)
+		if err != nil {
+			AbortWithInternalError(c, err)
+			return false
+		}
 
-	c.JSON(200, groupResult)
+		c.JSON(200, groupResult)
+		return true
+	})
 }
 
-func getGroupByID(c *gin.Context, repoFactory repository.DBContext) {
-	repo, err := repoFactory.GetGroupRepo(c)
+func getGroupByID(c *gin.Context, dbContext repository.DBContext) {
+	repo, err := dbContext.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
@@ -139,8 +145,8 @@ func getGroupByID(c *gin.Context, repoFactory repository.DBContext) {
 	c.JSON(200, group)
 }
 
-func listGroups(c *gin.Context, repoFactory repository.DBContext) {
-	repo, err := repoFactory.GetGroupRepo(c)
+func listGroups(c *gin.Context, dbContext repository.DBContext) {
+	repo, err := dbContext.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
@@ -164,8 +170,8 @@ func listGroups(c *gin.Context, repoFactory repository.DBContext) {
 	c.JSON(200, groups)
 }
 
-func deleteGroup(c *gin.Context, repoFactory repository.DBContext) {
-	repo, err := repoFactory.GetGroupRepo(c)
+func deleteGroup(c *gin.Context, dbContext repository.DBContext) {
+	repo, err := dbContext.GetGroupRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
@@ -176,11 +182,14 @@ func deleteGroup(c *gin.Context, repoFactory repository.DBContext) {
 		return
 	}
 
-	err = repo.Delete(c, id)
-	if err != nil {
-		AbortWithInternalError(c, err)
-		return
-	}
+	CommitOnSuccess(c, dbContext, func() bool {
+		err = repo.Delete(c, id)
+		if err != nil {
+			AbortWithInternalError(c, err)
+			return false
+		}
 
-	c.Status(204)
+		c.Status(204)
+		return true
+	})
 }
