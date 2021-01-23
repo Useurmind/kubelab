@@ -25,6 +25,7 @@ func (s *MemDBSystem) NewContext() DBContext {
 // MemDBContext is used to create in memory repositories.
 type MemDBContext struct {
 	groups *MemGroupRepo
+	projects *MemProjectRepo
 }
 
 func (f *MemDBContext) Migrate() error {
@@ -37,6 +38,22 @@ func (f *MemDBContext) GetGroupRepo(ctx context.Context) (GroupRepo, error) {
 	}
 
 	return f.groups, nil
+}
+
+func (f *MemDBContext) GetProjectRepo(ctx context.Context) (ProjectRepo, error) {
+	if f.projects == nil {
+		f.projects = NewMemProjectRepo()
+	}
+
+	return f.projects, nil
+}
+
+func (f *MemDBContext) Commit() error {
+	return nil
+}
+
+func (f *MemDBContext) Rollback() error {
+	return nil
 }
 
 func (f *MemDBContext) Close() error {

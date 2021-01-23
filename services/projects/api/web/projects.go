@@ -21,9 +21,6 @@ func HandleProjects(basePath string, router *gin.Engine, dbSystem repository.DBS
 	// GET project by id
 	router.GET(basePath+"/:id", func(c *gin.Context) { UseDBContext(c, dbSystem, getProjectByID) })
 
-	// List project
-	router.GET(basePath, func(c *gin.Context) { UseDBContext(c, dbSystem, listProjects) })
-
 	// DELETE project
 	router.DELETE(basePath+"/:id", func(c *gin.Context) { UseDBContext(c, dbSystem, deleteProject) })
 }

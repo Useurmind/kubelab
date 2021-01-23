@@ -7,6 +7,37 @@ func (g *Group) IsNew() bool {
 	return g.Id == 0
 }
 
+// GetProjectCount returns the number of projects in the group.
+func (g *Group) GetProjectCount() int {
+	return len(g.GatherProjects())
+}
+
+// RefreshProjectRefs refreshes the project references inside a group.
+func (g *Group) RefreshProjectRefs(projects []*Project) error {
+	projectsByAssGroup := make(map[int64][]*ProjectRef)
+	accountedSubgroups := make(map[int64]bool)
+
+	for _, proj := range projects {
+		projectsByAssGroup[proj.AssignedGroupId] = append(projectsByAssGroup[proj.AssignedGroupId], proj.ToProjectRef())
+		accountedSubgroups[proj.AssignedGroupId] = false
+	}
+
+	g.Projects = projectsByAssGroup[g.Id]
+
+	for _, subgroup := range g.GatherSubgroups() {
+		subgroup.Projects = projectsByAssGroup[subgroup.Id]
+		accountedSubgroups[subgroup.Id] = true
+	}
+
+	for k, v := range accountedSubgroups {
+		if v == false {
+			return fmt.Errorf("Subgroup %d is missing but has projects assigned to it", k)
+		}
+	}
+
+	return nil
+}
+
 // InsertProjectRef tries to insert a reference to the given project
 // on the matching group/subgroup. If no matching group/subgroup is found
 // an error is returned.

@@ -20,10 +20,6 @@ type DBContext interface {
 	// Migrate the database to the current schema version.
 	Migrate() error
 
-	// CreateTransaction returns a transaction that can be used to make multiple repo calls
-	// atomic.
-	CreateTransaction(ctx context.Context) (DBTransaction, error)
-
 	// GetGroupRepo returns a group repository.
 	GetGroupRepo(ctx context.Context) (GroupRepo, error)
 
@@ -64,6 +60,12 @@ type ProjectRepo interface {
 
 	// Get retrieves the project with the given id from the database.
 	Get(ctx context.Context, projectID int64) (*models.Project, error)
+
+	// GetByGroupID projects for the given group id.
+	GetByGroupID(ctx context.Context, groupID int64) ([]*models.Project, error)
+
+	// CountByGroupID counts all projects assigned to a group.
+	CountByGroupID(ctx context.Context, groupID int64) (int64, error)
 
 	// Delete the project with the given id.
 	Delete(ctx context.Context, projectID int64) error

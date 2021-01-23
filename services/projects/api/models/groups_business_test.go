@@ -94,3 +94,68 @@ func TestInsertProjectRef(t *testing.T) {
 		t.Error("Project was not correctly assigned")
 	}
 }
+
+
+func TestUpdateProjectRef(t *testing.T) {
+	group := Group{
+		Subgroups: []*Group{
+			{
+				Subgroups: []*Group{
+					{Id: 2},
+				},
+			},
+			{
+				Subgroups: []*Group{
+					{
+						Subgroups: []*Group{
+							{Id: 3, Projects: []*ProjectRef{ {Id: 1, Name: "old"} }},
+							{Id: 4},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	err := group.UpdateProjectRef(&Project{Id: 1, AssignedGroupId: 3, Name: "new"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if group.Subgroups[1].Subgroups[0].Subgroups[0].Projects[0].Name != "new" {
+		t.Error("Project was not correctly updated")
+	}
+}
+
+func TestDeleteProjectRef(t *testing.T) {
+	group := Group{
+		Subgroups: []*Group{
+			{
+				Subgroups: []*Group{
+					{Id: 2},
+				},
+			},
+			{
+				Subgroups: []*Group{
+					{
+						Subgroups: []*Group{
+							{Id: 3, Projects: []*ProjectRef{ {Id: 1, Name: "old"} }},
+							{Id: 4},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	err := group.DeleteProjectRef(&Project{Id: 1, AssignedGroupId: 3})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(group.Subgroups[1].Subgroups[0].Subgroups[0].Projects) > 0 {
+		t.Error("Project was not correctly deleted")
+	}
+}
+
+

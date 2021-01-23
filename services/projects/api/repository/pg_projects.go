@@ -16,6 +16,7 @@ type pgProject struct {
 	ID int64 `db:"id"`
 	GroupID int64 `db:"group_id"`
 	Slug string `db:"slug"`
+
 	Data types.JSONText `db:"data"`
 }
 
@@ -109,6 +110,35 @@ func (r *PGProjectRepo) GetBySlugs(ctx context.Context, groupSlug string, projec
 	}
 
 	return pgproject.createModel()
+}
+
+func (r *PGProjectRepo) GetByGroupID(ctx context.Context, groupID int64) ([]*models.Project, error) {
+	pgprojects := make([]*pgProject, 0)
+	err := r.tx.GetContext(ctx, &pgprojects, "SELECT id, slug, data -> 'name' as name FROM projects WHERE group_id = $1", groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	projects := make([]*models.Project, 0, len(pgprojects))
+	for _, pgProj := range pgprojects {
+		proj, err := pgProj.createModel()
+		if err != nil {
+			return nil, err
+		}
+		projects = append(projects, proj)
+	}
+
+	return projects, nil
+}
+
+func (r *PGProjectRepo) CountByGroupID(ctx context.Context, groupID int64) (int64, error) {
+	var count int64
+	err := r.tx.GetContext(ctx, &count, "SELECT COUNT(id) FROM projects WHERE group_id = $1", groupID)
+	if err != nil {
+		return -1, err
+	}
+
+	return count, nil
 }
 
 

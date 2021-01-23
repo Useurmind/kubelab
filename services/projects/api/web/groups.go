@@ -72,7 +72,12 @@ func createGroup(c *gin.Context, dbContext repository.DBContext) {
 }
 
 func updateGroup(c *gin.Context, dbContext repository.DBContext) {
-	repo, err := dbContext.GetGroupRepo(c)
+	groupRepo, err := dbContext.GetGroupRepo(c)
+	if err != nil {
+		AbortWithInternalError(c, err)
+		return
+	}
+	projectRepo, err := dbContext.GetProjectRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
@@ -109,7 +114,28 @@ func updateGroup(c *gin.Context, dbContext repository.DBContext) {
 	}
 
 	CommitOnSuccess(c, dbContext, func() bool {
-		groupResult, err := repo.CreateOrUpdate(c, &group)
+		projectCount, err := projectRepo.CountByGroupID(c, group.Id)
+		if err != nil {
+			AbortWithInternalError(c, err)
+			return false
+		}
+	
+		if group.GetProjectCount() != int(projectCount) {
+			projects, err := projectRepo.GetByGroupID(c, group.Id)
+			if err != nil {
+				AbortWithInternalError(c, err)
+				return false
+			}
+
+			err = group.RefreshProjectRefs(projects)
+			
+			if err != nil {
+				AbortWithInternalError(c, err)
+				return false
+			}
+		}
+
+		groupResult, err := groupRepo.CreateOrUpdate(c, &group)
 		if err != nil {
 			AbortWithInternalError(c, err)
 			return false
@@ -171,7 +197,12 @@ func listGroups(c *gin.Context, dbContext repository.DBContext) {
 }
 
 func deleteGroup(c *gin.Context, dbContext repository.DBContext) {
-	repo, err := dbContext.GetGroupRepo(c)
+	groupRepo, err := dbContext.GetGroupRepo(c)
+	if err != nil {
+		AbortWithInternalError(c, err)
+		return
+	}
+	projectRepo, err := dbContext.GetProjectRepo(c)
 	if err != nil {
 		AbortWithInternalError(c, err)
 		return
@@ -183,7 +214,18 @@ func deleteGroup(c *gin.Context, dbContext repository.DBContext) {
 	}
 
 	CommitOnSuccess(c, dbContext, func() bool {
-		err = repo.Delete(c, id)
+		projectCount, err := projectRepo.CountByGroupID(c, id)
+		if err != nil {
+			AbortWithInternalError(c, err)
+			return false
+		}
+
+		if projectCount > 0 {
+			AbortWithBadRequest(c, "Cannot deleted group that has still projects assigned to it", nil)
+			return false
+		}
+
+		err = groupRepo.Delete(c, id)
 		if err != nil {
 			AbortWithInternalError(c, err)
 			return false
