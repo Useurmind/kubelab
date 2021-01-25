@@ -1,5 +1,15 @@
 package {{ .Spec.GoNamespace }}
 
+{{- range $enumDef := .Spec.StringEnums}}
+
+const (
+	{{- range $key, $value := $enumDef.Values}}
+	{{ $enumDef.Name }}{{ $key }} = "{{ $value }}"
+	{{- end}}
+)
+
+{{- end }}
+
 {{- range $pocoDef := .Spec.PocoTypes}}
 
 // {{$pocoDef.Description}}

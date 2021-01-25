@@ -1,6 +1,15 @@
+import { AppBar, Link, Toolbar, Typography } from "@material-ui/core";
 import * as React from "react";
-import { H1 } from './headings';
+import HomeIcon from '@material-ui/icons/Home';
+
 
 export const Header = () => {
-    return <H1>Kubelab</H1>
+    return <AppBar position="static">
+        <Toolbar>
+            <a href="/ui/home"><HomeIcon></HomeIcon></a>
+            <Typography variant="h6">
+                Kubelab
+            </Typography>
+        </Toolbar>
+    </AppBar>
 }

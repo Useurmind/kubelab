@@ -166,6 +166,7 @@ func getGroupByID(c *gin.Context, dbContext repository.DBContext) {
 
 	if group == nil {
 		AbortWithNotFoundError(c, nil)
+		return
 	}
 
 	c.JSON(200, group)

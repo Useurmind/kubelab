@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactDom from "react-dom";
 import { SimpleContainerBuilder } from 'rfluxx';
 import { ContainerContextProvider } from 'rfluxx-react';
+import { ThemeProvider } from "styled-components";
 import { App } from "./app";
 import { ConfigStore, IConfigStore } from './config/config_store';
 import { GroupListStore } from './pages/group_list/group_list_store';

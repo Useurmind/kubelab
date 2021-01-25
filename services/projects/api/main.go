@@ -24,7 +24,7 @@ func main() {
 	dbSystem := repository.NewPGDBSystem(dbConfig.Host, dbConfig.Port, dbConfig.DBName, dbConfig.User, dbConfig.Password)
 	
 	stop := make(chan bool)
-	stopped := runWith(dbSystem, stop, false)
+	stopped := runWith(dbSystem, stop, ":8080")
 	err := <- stopped
 	if err != nil {
 		log.Error().Err(err).Msg("Starting kubelab projects failed")
@@ -32,7 +32,7 @@ func main() {
 	}
 }
 
-func runWith(dbSystem repository.DBSystem, stop chan bool, local bool) chan error {
+func runWith(dbSystem repository.DBSystem, stop chan bool, address string) chan error {
 	err := migrateDB(dbSystem)
 	if err != nil {
 		stopped := make(chan error)
@@ -49,7 +49,7 @@ func runWith(dbSystem repository.DBSystem, stop chan bool, local bool) chan erro
 	web.HandleGroups("groups", router, dbSystem)
 	web.HandleProjects("projects", router, dbSystem)
 
-	stopped := runGinServer(stop, router, local)
+	stopped := runGinServer(stop, router, address)
 	return stopped
 }
 
@@ -65,16 +65,9 @@ func migrateDB(dbSystem repository.DBSystem) error {
 	return nil
 }
 
-func runGinServer(stop chan bool, router *gin.Engine, local bool) chan error {
-	interf := ""
-	if local {
-		interf = "localhost"
-	}
-	port := "8080"
-
-
+func runGinServer(stop chan bool, router *gin.Engine, address string) chan error {
 	srv := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", interf, port),
+		Addr:    address,
 		Handler: router,
 	}
 	stopped := make(chan error)

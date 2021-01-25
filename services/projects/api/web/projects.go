@@ -62,6 +62,11 @@ func createProject(c *gin.Context, dbContext repository.DBContext) {
 		return
 	}
 
+	if project.AssignedGroupId == 0 {
+		AbortWithBadRequest(c, "Project has no assigned group id set, which is required.", nil)
+		return
+	}
+
 	CommitOnSuccess(c, dbContext, func() bool {
 		projectResult, err := projectRepo.CreateOrUpdate(c, &project)
 		if err != nil {

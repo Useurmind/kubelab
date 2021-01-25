@@ -24,6 +24,12 @@ type PocoSet struct {
 	GoNamespace string `yaml:"goNamespace"`
 
 	PocoTypes []PocoDefinition `yaml:"pocoTypes"`
+	StringEnums []StringEnumDefinition `yaml:"stringEnums"`
+}
+
+type StringEnumDefinition struct {
+	Name string `yaml:"name"`
+	Values map[string]string `yaml:"values"`
 }
 
 type PocoDefinition struct {

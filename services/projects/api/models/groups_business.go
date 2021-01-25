@@ -12,6 +12,11 @@ func (g *Group) GetProjectCount() int {
 	return len(g.GatherProjects())
 }
 
+// Validate the fields in the group.
+func (g *Group) Validate(expectedID int64) map[string]string {
+	return len(g.GatherProjects())
+}
+
 // RefreshProjectRefs refreshes the project references inside a group.
 func (g *Group) RefreshProjectRefs(projects []*Project) error {
 	projectsByAssGroup := make(map[int64][]*ProjectRef)

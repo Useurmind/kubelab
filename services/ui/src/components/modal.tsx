@@ -1,14 +1,10 @@
 import * as React from "react"
 import styled from "styled-components";
-import { H3 } from './headings';
 import { Paragraph } from './text';
 import Modal from 'react-modal'
 import { TextBox } from './input';
-import { Button } from './button';
-
-export const ModalHeading = H3
-export const ModalText = Paragraph
-export const ModalButtonBar = styled.div``
+import { FaCheck, FaWindowClose } from "react-icons/fa";
+import { Button, Typography } from "@material-ui/core";
 
 export interface OkCancelModalProps {
     isOpen: boolean
@@ -37,15 +33,15 @@ export const OkCancelModal: React.FunctionComponent<OkCancelModalProps> = (props
 
     return <Modal isOpen={props.isOpen}>
         <div onKeyDown={onKeyDown}>
-            <ModalHeading>{props.heading}</ModalHeading>
-            <ModalText>{props.text}</ModalText>
+            <Typography variant="h4">{props.heading}</Typography>
+            <Typography variant="body1">{props.text}</Typography>
             {
                 props.children
             }
-            <ModalButtonBar>
-                <Button onClick={() => props.cancelHandler()}>{props.cancelText}</Button>
-                <Button onClick={() => props.okHandler()}>{props.okText}</Button>
-            </ModalButtonBar>
+            <div>
+                <Button variant="outlined" color="secondary" onClick={() => props.cancelHandler()}>{props.cancelText}</Button>
+                <Button variant="contained" color="primary" onClick={() => props.okHandler()}>{props.okText}</Button>
+            </div>
         </div>
     </Modal>
 }

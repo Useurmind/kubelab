@@ -1,12 +1,19 @@
+import { Card, CardActions, CardContent, Link, Typography } from "@material-ui/core";
 import * as React from "react"
-import { Link } from "react-router-dom";
-import { H3 } from '../../components/headings'
 export const Home = () => {
 
     return <div>
-        <H3>Welcome to kubelab</H3>
+        <Typography variant="h3">Welcome to kubelab</Typography>
 
-        <Link to="/ui/groups">Groups</Link>
+        <Card>
+            <CardContent>
+                <Typography variant="h6">Groups</Typography>
+                <Typography variant="body1">Browse available groups.</Typography>
+            </CardContent>
+            <CardActions>
+                <Link variant="button" href="/ui/groups">Go to groups</Link>
+            </CardActions>
+        </Card>
     </div>
 }
 

@@ -1,0 +1,30 @@
+goNamespace: models
+pocoTypes:
+  - pocoName: ApiError
+    description: Error when calling the api.
+    properties:
+      - name: type
+        description: The type of error that happened.
+        typeMap:
+          go: string
+          ts: ErrorType
+      - name: error
+        description: The description of the error.
+        type: string
+      - name: data
+        description: A map of data attached to the error. In case of a validation errors this contains the errors per validated property.
+        typeMap:
+          go: "map[string]string"
+          ts: "Map<string, string>"
+
+stringEnums:
+  - name: ErrorType
+    values:
+      NotFound: "ERROR_NOT_FOUND"
+      InternalError: "ERROR_INTERNAL"
+      ValidationError: "ERROR_VALIDATION"
+      BadRequest: "ERROR_BAD_REQUEST"
+  - name: ValidationErrors
+    values:
+      Required: "property is required"
+      UnexpectedValue: "property has unexpected value"

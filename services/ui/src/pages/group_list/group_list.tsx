@@ -3,12 +3,13 @@ import { useState } from 'react'
 import Modal from 'react-modal';
 import { useStoreStateFromContainerContext } from 'rfluxx-react'
 import { root } from 'rxjs/internal/util/root';
-import { Button } from '../../components/button'
-import { H3 } from '../../components/headings'
 import { TextBox } from '../../components/input';
-import { ModalButtonBar, ModalHeading, ModalText, OkCancelModal } from '../../components/modal';
+import { OkCancelModal } from '../../components/modal';
 import { IGroup } from '../../models/project';
 import { IGroupListStore, IGroupListStoreState } from './group_list_store'
+import { FaFolderPlus, FaTrash } from "react-icons/fa";
+import { Button, Card, CardContent, List, ListItem, Typography } from "@material-ui/core";
+
 
 export const GroupList = () => {
     const [modalState, setModalState] = useState({
@@ -53,6 +54,20 @@ export const GroupList = () => {
         }
     }
 
+    const groupCard = (group: IGroup) => {
+        return <Card>
+            <CardContent>
+                <Typography color="textSecondary" gutterBottom>
+                    group
+                </Typography>
+                <Typography variant="h5" component="h2">
+                    {group.name}
+                </Typography>
+                { groupList(group.id, group.id, group.subgroups) }
+            </CardContent>
+        </Card>
+    }
+
     const groupList = (rootGroupId: number, parentGroupId: number, groups: IGroup[]) => {
         if (!groups || groups.length === 0) {
             return null
@@ -66,8 +81,8 @@ export const GroupList = () => {
 
                 return <li key={groupId}>
                     {group.name}
-                    <Button onClick={() => deleteGroup(currentRootId, groupId)}>Delete</Button>
-                    <Button onClick={() => startCreateGroup(nextRootId, !rootGroupId ? null : groupId)}>Create Subgroup</Button>
+                    <Button variant="outlined" color="secondary" onClick={() => startCreateGroup(nextRootId, !rootGroupId ? null : groupId)}>Create subgroup</Button>
+                    <Button variant="outlined" color="secondary" onClick={() => deleteGroup(currentRootId, groupId)}>Delete</Button>
                     { groupList(nextRootId, groupId, group.subgroups)}
                 </li>
             })}
@@ -75,9 +90,13 @@ export const GroupList = () => {
     }
 
     return <div>
-        <H3>Group List</H3>
-        <Button onClick={() => startCreateGroup(null, null)}>Create Group</Button>
-        { groupList(null, null, state.groups) }
+        <Typography variant="h3">Group List</Typography>
+        <Button variant="outlined" color="secondary" onClick={() => startCreateGroup(null, null)}>Create Group</Button>
+        <List>
+        { state.groups && state.groups.map(g => {
+            return <ListItem key={g.id}>{groupCard(g)}</ListItem>
+        })}
+        </List>
         <OkCancelModal isOpen={modalState.isOpen}
             heading="Create Group"
             text={`Enter the name of the ${modalState.parentGroupId !== null ? "sub" : ""}group to create`}

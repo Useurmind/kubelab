@@ -46,7 +46,8 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 	// give all new subgroups a unique id
 	newSubgroups := group.GatherNewSubgroups()
 	for _, newSubgroup := range newSubgroups {
-		nextID, err := getNextValFromSequence(ctx, r.tx, "groupIDSequence")
+		log.Debug().Str("subgroup_name", newSubgroup.Name).Msg("Computing ID for new subgroup")
+		nextID, err := getNextValFromSequence(ctx, r.tx, groupIDSequence)
 		if err != nil {
 			return nil, err
 		}
@@ -60,6 +61,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 
 	if group.IsNew() {
 		// insert
+		log.Debug().RawJSON("group", pggroup.Data).Msg("Inserting new group")
 		res, err := r.tx.NamedExec("INSERT INTO groups (name, data) VALUES (:name, :data)", pggroup)
 		if err != nil {
 			return nil, err
@@ -69,6 +71,7 @@ func (r *PGGroupRepo) CreateOrUpdate(ctx context.Context, group *models.Group) (
 		group.Id = id
 	} else {
 		// update
+		log.Debug().RawJSON("group", pggroup.Data).Msg("Updating existing group")
 		res, err := r.tx.NamedExecContext(ctx, "UPDATE groups SET name=:name, data=:data WHERE id=:id", pggroup)
 		if err != nil {
 			return nil, err

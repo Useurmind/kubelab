@@ -121,5 +121,9 @@ func (r *PGDBContext) Rollback() error {
 }
 
 func (r *PGDBContext) Close() error {
-	return r.db.Close()
+	if r.db != nil {
+		return r.db.Close()
+	}
+
+	return nil
 }

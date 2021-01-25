@@ -1,6 +1,24 @@
 package models
 
-import "testing"
+import (
+	"testing"
+	"github.com/stretchr/testify/assert"
+)
+
+
+func TestGroupValidateDetectsMissingNameSlug(t *testing.T) {
+	group := Group{
+	}
+
+	data := group.Validate(0)
+	if data == nil {
+		t.Fatalf("Expected validation data but got nil")
+	}
+
+	assert.Equal(t, data["name"], "r")
+
+
+}
 
 func TestGroupGatherProjectsWorks(t *testing.T) {
 	expectedProjects := 5

@@ -1,17 +1,21 @@
+import { DefaultTheme } from "styled-components";
 
-
-export interface IColors {
-    main: string
-    secondary: string
-}
-
-export interface ITheme {
-    colors: IColors
-}
-
-export const theme: ITheme = {
-    colors: {
-        main: "red",
-        secondary: "blue"
-    }
-}
+// export const theme: DefaultTheme = {
+//     borderRadius: "3px",
+//     colors: {
+//         primary: {
+//             foreground: "white",
+//             background: "blue"
+//         },
+//         secondary: {
+//             foreground: "black",
+//             background: "lightgray"
+//         }
+//     },
+//     margins: {
+//         default: "1em"
+//     },
+//     fonts: {
+//         size: "1em"
+//     }
+// }

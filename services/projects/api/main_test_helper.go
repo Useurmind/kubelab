@@ -14,11 +14,13 @@ type TestServiceConfig struct {
 func RunServiceUntilStopped(t *testing.T, stop chan bool) (TestServiceConfig, chan error) {
 	dbSystem := repository.NewMemDBSystem()
 
-	stopped := runWith(dbSystem, stop, true)
+	address := "localhost:8081"
+
+	stopped := runWith(dbSystem, stop, address)
 
 	return TestServiceConfig{
 		Client: &webclient.Client{
-			BaseUrl: "http://localhost:8080",
+			BaseUrl: "http://" + address,
 		},
 	}, stopped
 }
@@ -27,6 +29,6 @@ func EnsureServiceCorrectlyStopped(t *testing.T, stop chan bool, stopped chan er
 	stop <- true
 	err := <- stopped
 	if err != nil {
-		t.Fatalf("Error returned from server %v", err)
+		t.Fatalf("Error returned from server: %v", err)
 	}
 }
